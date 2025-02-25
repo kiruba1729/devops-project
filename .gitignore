@@ -1,0 +1,8 @@
+# Terraform-related files
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+
+# Private Key - DO NOT SHARE!
+devops-nginx-key.pem
