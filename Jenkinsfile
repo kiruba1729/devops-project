@@ -5,8 +5,8 @@ pipeline {
         IMAGE_NAME = "kiruba1729/devops-project"          // Docker Hub Image Name
         CONTAINER_NAME = "devops-container"              // Container Name
         DOCKER_HUB_CREDS = 'docker-hub-credentials'      // Jenkins Credentials ID for Docker Hub
-        AWS_CREDENTIALS = credentials('aws-credentials') // Jenkins AWS credentials
         EC2_PUBLIC_IP = "54.243.179.27"                 // Public IP of your EC2 instance
+        SSH_KEY = credentials('ssh-private-key')         // Jenkins Credentials ID for SSH private key
     }
 
     stages {
@@ -35,23 +35,17 @@ pipeline {
             }
         }
 
-        stage('Deploy to EC2 using AWS CLI') {
+        stage('Deploy to EC2 using SSH') {
             steps {
                 script {
-                    withAWS(credentials: 'aws-credentials', region: 'us-east-1') {
-                        sh '''
-                        # Use AWS CLI to execute commands on EC2 instance
-                        aws ec2 describe-instances --instance-ids i-xxxxxxxxxx  # Example to check EC2 instance status
-                        
-                        # Connect to EC2 instance and deploy Docker container
-                        aws ssm send-command \
-                            --instance-ids "i-xxxxxxxxxx" \
-                            --document-name "AWS-RunShellScript" \
-                            --comment "Deploy Docker container" \
-                            --parameters 'commands=["docker pull $IMAGE_NAME:latest", "docker stop $CONTAINER_NAME || true", "docker rm $CONTAINER_NAME || true", "docker run -d -p 80:80 --name $CONTAINER_NAME $IMAGE_NAME"]' \
-                            --region us-east-1
-                        '''
-                    }
+                    // Use SSH to deploy the Docker container on EC2
+                    sh """
+                    ssh -o StrictHostKeyChecking=no -i $SSH_KEY ec2-user@$EC2_PUBLIC_IP \
+                        "docker pull $IMAGE_NAME:latest && \
+                         docker stop $CONTAINER_NAME || true && \
+                         docker rm $CONTAINER_NAME || true && \
+                         docker run -d -p 80:80 --name $CONTAINER_NAME $IMAGE_NAME"
+                    """
                 }
             }
         }
