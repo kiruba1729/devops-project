@@ -3,10 +3,10 @@ pipeline {
 
     environment {
         IMAGE_NAME = "kiruba1729/devops-project"          // Docker Hub Image Name
-        CONTAINER_NAME = "devops-container"               // Container Name
-        DOCKER_HUB_CREDS = 'docker-hub-credentials'       // Jenkins Credentials ID for Docker Hub
-        EC2_SSH_KEY = credentials('aws-credentials')     // Jenkins Credentials for EC2 SSH Key
-        EC2_PUBLIC_IP = "54.243.179.27"                  // Public IP of your EC2 instance
+        CONTAINER_NAME = "devops-container"              // Container Name
+        DOCKER_HUB_CREDS = 'docker-hub-credentials'      // Jenkins Credentials ID for Docker Hub
+        AWS_CREDENTIALS = credentials('aws-credentials') // Jenkins AWS credentials
+        EC2_PUBLIC_IP = "54.243.179.27"                 // Public IP of your EC2 instance
     }
 
     stages {
@@ -35,17 +35,23 @@ pipeline {
             }
         }
 
-        stage('Deploy to EC2') {
+        stage('Deploy to EC2 using AWS CLI') {
             steps {
                 script {
-                    sh '''
-                    ssh -i $EC2_SSH_KEY ec2-user@$EC2_PUBLIC_IP << EOF
-                    docker pull $IMAGE_NAME:latest      // Pull the latest image from Docker Hub
-                    docker stop $CONTAINER_NAME || true // Stop container if running
-                    docker rm $CONTAINER_NAME || true   // Remove existing container
-                    docker run -d -p 80:80 --name $CONTAINER_NAME $IMAGE_NAME // Start container
-                    EOF
-                    '''
+                    withAWS(credentials: 'aws-credentials', region: 'us-east-1') {
+                        sh '''
+                        # Use AWS CLI to execute commands on EC2 instance
+                        aws ec2 describe-instances --instance-ids i-xxxxxxxxxx  # Example to check EC2 instance status
+                        
+                        # Connect to EC2 instance and deploy Docker container
+                        aws ssm send-command \
+                            --instance-ids "i-xxxxxxxxxx" \
+                            --document-name "AWS-RunShellScript" \
+                            --comment "Deploy Docker container" \
+                            --parameters 'commands=["docker pull $IMAGE_NAME:latest", "docker stop $CONTAINER_NAME || true", "docker rm $CONTAINER_NAME || true", "docker run -d -p 80:80 --name $CONTAINER_NAME $IMAGE_NAME"]' \
+                            --region us-east-1
+                        '''
+                    }
                 }
             }
         }
