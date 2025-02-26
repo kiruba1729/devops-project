@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "kiruba1729/devops-app"          // Docker Hub Image Name
+        IMAGE_NAME = "kiruba1729/devops-project"          // Docker Hub Image Name
         CONTAINER_NAME = "devops-container"           // Container Name
         DOCKER_HUB_CREDS = "docker-hub-credentials"   // Jenkins Credentials ID for Docker Hub
         EC2_SSH_KEY = "/path/to/your/private-key.pem" // Path to your EC2 private key for SSH
