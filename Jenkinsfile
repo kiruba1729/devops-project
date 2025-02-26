@@ -43,7 +43,7 @@ pipeline {
                     mkdir -p ~/.ssh
 
                     # Add the EC2 instance's SSH fingerprint to known_hosts
-                    echo "54.243.179.27 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAr8FVQvB6HFd4yFwZTtZnmkRtqlyqGS+2jEsDzwp24fO0ZmgwRZYuHfCrc50WyThDiW9U2Gjr2A1+KmML8ySyRbyZznkZ8h+RJkFzKvfaSHhty6xHlmCVtVzRhjlSzz5+Vmg4jwQWmfvhEvH21bZaY4jF0ROvxZT2TrQ1Ue9vYxyqA4GpLno8CwihYmA9bskLrd9GQ== " >> ~/.ssh/known_hosts
+                    ssh-keyscan -t rsa $EC2_PUBLIC_IP >> ~/.ssh/known_hosts
 
                     # Set the correct permissions for the known_hosts file
                     chmod 600 ~/.ssh/known_hosts
@@ -54,10 +54,10 @@ pipeline {
 
                     # Use the private key to SSH into the EC2 instance and deploy the Docker container
                     ssh -i /tmp/aws-credentials.pem ec2-user@$EC2_PUBLIC_IP << EOF
-                    docker pull $IMAGE_NAME:latest      // Pull the latest image from Docker Hub
-                    docker stop $CONTAINER_NAME || true // Stop container if running
-                    docker rm $CONTAINER_NAME || true   // Remove existing container
-                    docker run -d -p 80:80 --name $CONTAINER_NAME $IMAGE_NAME // Start container
+                    docker pull $IMAGE_NAME:latest      # Pull the latest image from Docker Hub
+                    docker stop $CONTAINER_NAME || true # Stop container if running
+                    docker rm $CONTAINER_NAME || true   # Remove existing container
+                    docker run -d -p 80:80 --name $CONTAINER_NAME $IMAGE_NAME # Start container
                     EOF
                     '''
                 }
