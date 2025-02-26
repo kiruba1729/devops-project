@@ -3,10 +3,10 @@ pipeline {
 
     environment {
         IMAGE_NAME = "kiruba1729/devops-project"          // Docker Hub Image Name
-        CONTAINER_NAME = "devops-container"           // Container Name
-        DOCKER_HUB_CREDS = credentials('docker-hub-credentials')   // Jenkins Credentials ID for Docker Hub
-        EC2_SSH_KEY = credentials('aws-credentials') // Path to your EC2 private key for SSH
-        EC2_PUBLIC_IP = "54.243.179.27"         // Public IP of your EC2 instance
+        CONTAINER_NAME = "devops-container"               // Container Name
+        DOCKER_HUB_CREDS = 'docker-hub-credentials'       // Jenkins Credentials ID for Docker Hub
+        EC2_SSH_KEY = credentials('aws-credentials')     // Jenkins Credentials for EC2 SSH Key
+        EC2_PUBLIC_IP = "54.243.179.27"                  // Public IP of your EC2 instance
     }
 
     stages {
@@ -28,7 +28,7 @@ pipeline {
         stage('Push Docker Image to Docker Hub') {
             steps {
                 script {
-                    withDockerRegistry([credentialsId: "$DOCKER_HUB_CREDS", url: '']) {
+                    withDockerRegistry([credentialsId: DOCKER_HUB_CREDS, url: 'https://index.docker.io/v1/']) {
                         sh 'docker push $IMAGE_NAME' // Push image to Docker Hub
                     }
                 }
