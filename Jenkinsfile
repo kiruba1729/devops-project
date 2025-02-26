@@ -6,7 +6,7 @@ pipeline {
         CONTAINER_NAME = "devops-container"              // Container Name
         DOCKER_HUB_CREDS = 'docker-hub-credentials'      // Jenkins Credentials ID for Docker Hub
         AWS_CREDENTIALS = credentials('aws-credentials') // Jenkins AWS credentials
-        GITHUB_TOKEN = credentials('github-token')       // Jenkins GitHub token
+        GITHUB_TOKEN = credentials('github-credentials')       // Jenkins GitHub token
         EC2_PUBLIC_IP = "54.243.179.27"                 // Public IP of your EC2 instance
     }
 
@@ -15,7 +15,7 @@ pipeline {
             steps {
                 script {
                     // Checkout code from GitHub using GitHub Token
-                    git credentialsId: 'github-token', url: 'https://github.com/kiruba1729/devops-project.git'
+                    git credentialsId: 'github-credentials', url: 'https://github.com/kiruba1729/devops-project.git'
                 }
             }
         }
