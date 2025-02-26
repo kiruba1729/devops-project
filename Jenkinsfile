@@ -5,8 +5,8 @@ pipeline {
         IMAGE_NAME = "kiruba1729/devops-project"          // Docker Hub Image Name
         CONTAINER_NAME = "devops-container"              // Container Name
         DOCKER_HUB_CREDS = 'docker-hub-credentials'      // Jenkins Credentials ID for Docker Hub
+        AWS_CREDENTIALS = credentials('aws-credentials') // Jenkins AWS credentials
         EC2_PUBLIC_IP = "54.243.179.27"                 // Public IP of your EC2 instance
-        SSH_KEY = credentials('aws-credentials')         // Jenkins Credentials ID for SSH private key
     }
 
     stages {
@@ -35,16 +35,26 @@ pipeline {
             }
         }
 
-        stage('Deploy to EC2 using SSH') {
+        stage('Deploy to EC2 using AWS CLI') {
             steps {
                 script {
-                    // Use SSH to deploy the Docker container on EC2
+                    // Use AWS CLI to deploy the Docker container on EC2
                     sh """
-                    ssh -o StrictHostKeyChecking=no -i $SSH_KEY ec2-user@$EC2_PUBLIC_IP \
-                        "docker pull $IMAGE_NAME:latest && \
-                         docker stop $CONTAINER_NAME || true && \
-                         docker rm $CONTAINER_NAME || true && \
-                         docker run -d -p 80:80 --name $CONTAINER_NAME $IMAGE_NAME"
+                    # Set AWS credentials
+                    export AWS_ACCESS_KEY_ID=${AWS_CREDENTIALS_USR}
+                    export AWS_SECRET_ACCESS_KEY=${AWS_CREDENTIALS_PSW}
+
+                    # Pull the latest Docker image
+                    ssh -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP \
+                        "docker pull $IMAGE_NAME:latest"
+
+                    # Stop and remove the existing container
+                    ssh -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP \
+                        "docker stop $CONTAINER_NAME || true && docker rm $CONTAINER_NAME || true"
+
+                    # Run the new container
+                    ssh -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP \
+                        "docker run -d -p 80:80 --name $CONTAINER_NAME $IMAGE_NAME"
                     """
                 }
             }
