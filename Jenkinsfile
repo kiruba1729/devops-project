@@ -39,6 +39,15 @@ pipeline {
             steps {
                 script {
                     sh '''
+                    # Ensure the .ssh directory exists
+                    mkdir -p ~/.ssh
+
+                    # Add the EC2 instance's SSH fingerprint to known_hosts
+                    echo "54.243.179.27 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAr8FVQvB6HFd4yFwZTtZnmkRtqlyqGS+2jEsDzwp24fO0ZmgwRZYuHfCrc50WyThDiW9U2Gjr2A1+KmML8ySyRbyZznkZ8h+RJkFzKvfaSHhty6xHlmCVtVzRhjlSzz5+Vmg4jwQWmfvhEvH21bZaY4jF0ROvxZT2TrQ1Ue9vYxyqA4GpLno8CwihYmA9bskLrd9GQ== " >> ~/.ssh/known_hosts
+
+                    # Set the correct permissions for the known_hosts file
+                    chmod 600 ~/.ssh/known_hosts
+
                     # Save the EC2 private key to a file on the Jenkins workspace
                     echo "$EC2_SSH_KEY" > /tmp/aws-credentials.pem
                     chmod 600 /tmp/aws-credentials.pem
