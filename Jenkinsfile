@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "kiruba1729/devops-app"
+        CONTAINER_NAME = "devops-container"
+    }
+
     stages {
         stage('Checkout Code') {
             steps {
@@ -8,20 +13,26 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Building the application...'
-                sh 'docker --version' // Check if Docker is available in Jenkins
-                sh 'groups'            // Verify user groups in Jenkins
-                sh 'whoami'            // Check if running as 'jenkins' user
-                sh 'ls -lah /var/run/docker.sock' // Check permissions on Docker socket
+                script {
+                    sh 'docker --version' // Check if Docker is available
+                    sh 'groups' // Verify user groups
+                    sh 'whoami' // Check running user
+                    sh 'ls -lah /var/run/docker.sock' // Check permissions
+                    sh 'docker build -t $IMAGE_NAME .'
+                }
             }
         }
 
-        stage('Deploy') {
+        stage('Run Container') {
             steps {
-                echo 'Deploying the application...'
-                sh 'docker ps' // List running containers (should work if permission issue is fixed)
+                script {
+                    sh 'docker ps' // Verify running containers
+                    sh 'docker stop $CONTAINER_NAME || true'
+                    sh 'docker rm $CONTAINER_NAME || true'
+                    sh 'docker run -d --name $CONTAINER_NAME -p 8080:80 $IMAGE_NAME'
+                }
             }
         }
     }
