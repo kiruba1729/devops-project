@@ -6,7 +6,7 @@ pipeline {
         CONTAINER_NAME = "devops-container"              // Container Name
         DOCKER_HUB_CREDS = 'docker-hub-credentials'      // Jenkins Credentials ID for Docker Hub
         EC2_PUBLIC_IP = "54.243.179.27"                 // Public IP of your EC2 instance
-        SSH_KEY = credentials('ssh-private-key')         // Jenkins Credentials ID for SSH private key
+        SSH_KEY = credentials('aws-credentials')         // Jenkins Credentials ID for SSH private key
     }
 
     stages {
