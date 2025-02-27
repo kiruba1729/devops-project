@@ -5,8 +5,8 @@ pipeline {
         IMAGE_NAME = "kiruba1729/devops-project"          // Docker Hub Image Name
         CONTAINER_NAME = "devops-container"               // Container Name
         DOCKER_HUB_CREDS = 'docker-hub-credentials'       // Jenkins Credentials ID for Docker Hub
-        EC2_SSH_KEY = credentials('devops-nginx-key-new.pem')    // Jenkins Credentials for EC2 SSH Key (Corrected reference)
-        EC2_PUBLIC_IP = "54.243.179.27"                  // Public IP of your EC2 instance
+        EC2_SSH_KEY = credentials('devops-nginx-key-new.pem')  // Jenkins Credentials for EC2 SSH Key
+        EC2_PUBLIC_IP = "54.243.179.27"                   // Public IP of your EC2 instance
     }
 
     stages {
@@ -53,7 +53,7 @@ pipeline {
                     chmod 600 /tmp/devops-nginx-key-new.pem
 
                     # Use the private key to SSH into the EC2 instance and deploy the Docker container
-                    ssh -i /tmp/devops-nginx-key-new.pemec2-user@$EC2_PUBLIC_IP << EOF
+                    ssh -i /tmp/devops-nginx-key-new.pem ec2-user@$EC2_PUBLIC_IP << EOF
                     docker pull $IMAGE_NAME:latest      # Pull the latest image from Docker Hub
                     docker stop $CONTAINER_NAME || true # Stop container if running
                     docker rm $CONTAINER_NAME || true   # Remove existing container
