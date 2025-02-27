@@ -5,7 +5,7 @@ pipeline {
         IMAGE_NAME = "kiruba1729/devops-project"          // Docker Hub Image Name
         CONTAINER_NAME = "devops-container"               // Container Name
         DOCKER_HUB_CREDS = 'docker-hub-credentials'       // Jenkins Credentials ID for Docker Hub
-        EC2_SSH_KEY = credentials('devops-nginx-key-new.pem')  // Jenkins Credentials for EC2 SSH Key
+        EC2_SSH_KEY = credentials('devops-nginx-key')  // Jenkins Credentials for EC2 SSH Key
         EC2_PUBLIC_IP = "54.243.179.27"                   // Public IP of your EC2 instance
     }
 
